@@ -9,7 +9,7 @@ configurable string wso2AccessToken = ?;
 
 public function main() returns error? {
     ai:VectorStore vectorStore = check new pinecone:VectorStore(serviceUrl = pineconeServiceUrl, apiKey = pineconeApiKey);
-    ai:EmbeddingProvider embeddingModel = check new ai:Wso2EmbeddingProvider(serviceUrl = wso2EmbeddingServiceUrl, accessToken = wso2AccessToken);
+    ai:EmbeddingProvider embeddingModel = check new ai:Wso2EmbeddingProvider(wso2EmbeddingServiceUrl, wso2AccessToken);
     ai:VectorKnowledgeBase knowlegeBase = new ai:VectorKnowledgeBase(vectorStore, embeddingModel);
 
     io:println("Pre-processing data...");

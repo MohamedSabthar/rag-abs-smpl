@@ -21,10 +21,10 @@ isolated service /rag on new http:Listener(9090) {
 
     isolated function init() returns error? {
         ai:VectorStore vectorStore = check new pinecone:VectorStore(serviceUrl = pineconeServiceUrl, apiKey = pineconeApiKey);
-        ai:EmbeddingProvider embeddingModel = check new ai:Wso2EmbeddingProvider(serviceUrl = wso2EmbeddingServiceUrl, accessToken = wso2AccessToken);
+        ai:EmbeddingProvider embeddingModel = check new ai:Wso2EmbeddingProvider(wso2EmbeddingServiceUrl, wso2AccessToken);
         ai:VectorKnowledgeBase knowlegeBase = new ai:VectorKnowledgeBase(vectorStore, embeddingModel);
 
-        ai:Wso2ModelProvider llm = check new (serviceUrl = wso2EmbeddingServiceUrl, accessToken = wso2AccessToken);
+        ai:Wso2ModelProvider llm = check new (wso2EmbeddingServiceUrl, wso2AccessToken);
         self.rag = check new (llm, knowlegeBase);
     }
 
