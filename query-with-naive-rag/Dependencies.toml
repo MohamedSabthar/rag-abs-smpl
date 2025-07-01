@@ -5,20 +5,21 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.12.0"
+distribution-version = "2201.12.7"
 
 [[package]]
 org = "admin"
-name = "ingest"
+name = "query"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "ai"},
-	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "log"},
 	{org = "ballerinai", name = "observe"},
-	{org = "ballerinax", name = "ai.pinecone"}
+	{org = "ballerinax", name = "ai.rag"}
 ]
 modules = [
-	{org = "admin", packageName = "ingest", moduleName = "ingest"}
+	{org = "admin", packageName = "query", moduleName = "query"}
 ]
 
 [[package]]
@@ -133,6 +134,10 @@ dependencies = [
 	{org = "ballerina", name = "time"},
 	{org = "ballerina", name = "url"}
 ]
+modules = [
+	{org = "ballerina", packageName = "http", moduleName = "http"},
+	{org = "ballerina", packageName = "http", moduleName = "http.httpscerr"}
+]
 
 [[package]]
 org = "ballerina"
@@ -141,9 +146,6 @@ version = "1.8.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.value"}
-]
-modules = [
-	{org = "ballerina", packageName = "io", moduleName = "io"}
 ]
 
 [[package]]
@@ -250,6 +252,9 @@ dependencies = [
 	{org = "ballerina", name = "lang.value"},
 	{org = "ballerina", name = "observe"}
 ]
+modules = [
+	{org = "ballerina", packageName = "log", moduleName = "log"}
+]
 
 [[package]]
 org = "ballerina"
@@ -332,7 +337,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "xmldata"
-version = "2.9.0"
+version = "2.9.1"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -363,6 +368,19 @@ modules = [
 
 [[package]]
 org = "ballerinax"
+name = "ai.openai"
+version = "1.0.0"
+dependencies = [
+	{org = "ballerina", name = "ai"},
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "lang.regexp"},
+	{org = "ballerina", name = "log"},
+	{org = "ballerinax", name = "openai.chat"},
+	{org = "ballerinax", name = "openai.embeddings"}
+]
+
+[[package]]
+org = "ballerinax"
 name = "ai.pinecone"
 version = "0.1.0"
 dependencies = [
@@ -372,8 +390,43 @@ dependencies = [
 	{org = "ballerinai", name = "observe"},
 	{org = "ballerinax", name = "pinecone.vector"}
 ]
+
+[[package]]
+org = "ballerinax"
+name = "ai.rag"
+version = "0.1.0"
+dependencies = [
+	{org = "ballerina", name = "ai"},
+	{org = "ballerinai", name = "observe"},
+	{org = "ballerinax", name = "ai.openai"},
+	{org = "ballerinax", name = "ai.pinecone"}
+]
 modules = [
-	{org = "ballerinax", packageName = "ai.pinecone", moduleName = "ai.pinecone"}
+	{org = "ballerinax", packageName = "ai.rag", moduleName = "ai.rag"}
+]
+
+[[package]]
+org = "ballerinax"
+name = "openai.chat"
+version = "4.0.0"
+dependencies = [
+	{org = "ballerina", name = "constraint"},
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "log"},
+	{org = "ballerina", name = "os"},
+	{org = "ballerina", name = "url"},
+	{org = "ballerinai", name = "observe"}
+]
+
+[[package]]
+org = "ballerinax"
+name = "openai.embeddings"
+version = "1.0.5"
+dependencies = [
+	{org = "ballerina", name = "constraint"},
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "url"},
+	{org = "ballerinai", name = "observe"}
 ]
 
 [[package]]

@@ -5,35 +5,36 @@ import ballerinax/ai.pinecone;
 
 configurable string pineconeServiceUrl = ?;
 configurable string pineconeApiKey = ?;
-configurable string wso2EmbeddingServiceUrl = ?;
+configurable string wso2ServiceUrl = ?;
 configurable string wso2AccessToken = ?;
 
-public type QueryRequest record {|
-    string query;
-|};
-
-public type QueryResponse record {|
-    string response;
-|};
-
 isolated service /rag on new http:Listener(9090) {
-    private final ai:Rag rag;
+    private final ai:KnowledgeBase knowledgeBase;
+    private final ai:ModelProvider llm;
 
     isolated function init() returns error? {
-        ai:VectorStore vectorStore = check new pinecone:VectorStore(serviceUrl = pineconeServiceUrl, apiKey = pineconeApiKey);
-        ai:EmbeddingProvider embeddingModel = check new ai:Wso2EmbeddingProvider(wso2EmbeddingServiceUrl, wso2AccessToken);
-        ai:VectorKnowledgeBase knowlegeBase = new ai:VectorKnowledgeBase(vectorStore, embeddingModel);
-
-        ai:Wso2ModelProvider llm = check new (wso2EmbeddingServiceUrl, wso2AccessToken);
-        self.rag = check new (llm, knowlegeBase);
+        ai:VectorStore vectorStore = check new pinecone:VectorStore(pineconeServiceUrl, pineconeApiKey);
+        ai:EmbeddingProvider embeddingModel = check new ai:Wso2EmbeddingProvider(wso2ServiceUrl, wso2AccessToken);
+        self.knowledgeBase = new ai:VectorKnowledgeBase(vectorStore, embeddingModel);
+        self.llm = check new ai:Wso2ModelProvider(wso2ServiceUrl, wso2AccessToken);
     }
 
     isolated resource function post query(QueryRequest request) returns QueryResponse|http:InternalServerError {
-        string|ai:Error answer = self.rag.query(request.query);
-        if answer is ai:Error {
-            log:printError("Error occurred while querying the RAG pipeline.", answer);
+        log:printInfo("Received query: " + request.query);
+        do {
+            ai:DocumentMatch[] documentMatch = check self.knowledgeBase.retrieve(request.query);
+            ai:Document[] context = documentMatch.'map(ctx => ctx.document);
+
+            ai:RagPrompt prompts = ai:defaultRagPromptTemplateBuilder(context, request.query);
+            ai:ChatMessage[] messages = mapPromptToChatMessages(prompts);
+
+            ai:ChatAssistantMessage response = check self.llm->chat(messages, []);
+
+            string answer = response.content ?: "I couldn't find an answer to your question.";
+            return {response: answer};
+        } on fail error e {
+            log:printError("Failed to process query", 'error = e);
             return {body: "Unable to obtain a valid answer at this time."};
         }
-        return {response: answer};
     }
 }
